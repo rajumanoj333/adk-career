@@ -21,7 +21,7 @@ export function Layout() {
       <header className="border-b bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
-            <p className="text-[13px] uppercase tracking-[0.12em] text-primary-600">ADK Career Planner</p>>
+            <p className="text-[13px] uppercase tracking-[0.12em] text-primary-600">ADK Career Planner</p>
             <h1 className="text-xl font-semibold text-slate-900">Guided flow from onboarding to roadmap</h1>
           </div>
           <div className="flex items-center gap-3 rounded-lg border bg-slate-50 px-3 py-2 text-sm text-slate-700">
