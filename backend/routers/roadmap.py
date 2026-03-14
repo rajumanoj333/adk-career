@@ -267,22 +267,32 @@ async def get_all_roadmaps():
 @router.get("/{career}", response_model=RoadmapResponse)
 async def get_roadmap(career: str):
     """Get roadmap for a specific career"""
-    
+    return _get_roadmap_response(career)
+
+
+@router.get("", response_model=RoadmapResponse)
+async def get_roadmap_by_query(career: str):
+    """Get roadmap for a specific career (query param for names with slashes)"""
+    return _get_roadmap_response(career)
+
+
+def _get_roadmap_response(career: str):
+    """Helper to get roadmap response"""
     # Find matching career
     roadmap = CAREER_ROADMAPS.get(career)
-    
+
     if not roadmap:
         # Try fuzzy match
         matches = [c for c in CAREER_ROADMAPS.keys() if career.lower() in c.lower()]
         if matches:
             roadmap = CAREER_ROADMAPS[matches[0]]
-    
+
     if not roadmap:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Roadmap not found for '{career}'. Available: {list(CAREER_ROADMAPS.keys())}"
         )
-    
+
     return RoadmapResponse(
         career=career,
         description=roadmap["description"],

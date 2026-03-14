@@ -4,25 +4,41 @@ Intelligent career advisor that creates personalized M.Tech to career roadmaps
 """
 
 from google.adk.agents.llm_agent import Agent
-from eamcet_agent.tools.career_analysis import (
-    search_career_specializations,
-    get_colleges_for_specialization,
-    analyze_career_popularity,
-    get_regional_opportunities,
-    match_skills_to_specializations,
-    get_growth_specializations
-)
-from eamcet_agent.tools.career_roadmap import (
-    generate_college_to_career_roadmap,
-    calculate_career_alignment_score
-)
+
+# Use absolute import when package is imported directly
+try:
+    from tools.career_analysis import (
+        search_career_specializations,
+        get_colleges_for_specialization,
+        analyze_career_popularity,
+        get_regional_opportunities,
+        match_skills_to_specializations,
+        get_growth_specializations
+    )
+    from tools.career_roadmap import (
+        generate_college_to_career_roadmap,
+        calculate_career_alignment_score
+    )
+except ImportError:
+    from eamcet_agent.tools.career_analysis import (
+        search_career_specializations,
+        get_colleges_for_specialization,
+        analyze_career_popularity,
+        get_regional_opportunities,
+        match_skills_to_specializations,
+        get_growth_specializations
+    )
+    from eamcet_agent.tools.career_roadmap import (
+        generate_college_to_career_roadmap,
+        calculate_career_alignment_score
+    )
 
 # ========================
 # CAREER COORDINATOR AGENT
 # ========================
 
 career_coordinator = Agent(
-    model="gemini-flash-latest",
+    model="gemini-2.0-flash-lite",  # Lower model for better quota availability
     name="career_coordinator",
     description="Intelligent career advisor that creates personalized M.Tech to career roadmaps",
     instruction=(

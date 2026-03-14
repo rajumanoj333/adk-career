@@ -3,13 +3,16 @@ Database Connection - SQLAlchemy
 """
 
 import os
+from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 
-from models import Base
+from db.models import Base
 
+# Load environment variables
+load_dotenv()
 
 # Get database URL from environment
 DATABASE_URL = os.getenv(

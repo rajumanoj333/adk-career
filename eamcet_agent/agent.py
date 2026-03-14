@@ -105,7 +105,11 @@ def count_colleges(district: str) -> dict:
 # IMPORTS FROM AGENTS
 # ========================
 
-from .agents.career_coordinator import career_coordinator
+# Use absolute import when package is imported directly
+try:
+    from agents.career_coordinator import career_coordinator
+except ImportError:
+    from eamcet_agent.agents.career_coordinator import career_coordinator
 
 
 # ========================
@@ -113,7 +117,7 @@ from .agents.career_coordinator import career_coordinator
 # ========================
 
 root_agent = Agent(
-    model="gemini-flash-latest",
+    model="gemini-2.0-flash-lite",  # Lower model for better quota availability
     name="eamcet_agent",
     description="Multi-agent system for M.Tech colleges and personalized career planning",
     instruction=(

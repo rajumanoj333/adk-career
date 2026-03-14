@@ -10,8 +10,9 @@ psycopg2-binary==2.9.9
 alembic==1.13.1
 
 # Google ADK & AI
-google-adk==0.0.1  # Install from source or latest PyPI
-google-genai==0.3.0
+google-adk==1.0.0
+google-genai>=1.0.0
+deprecated>=1.2.0
 
 # Environment
 python-dotenv==1.0.0

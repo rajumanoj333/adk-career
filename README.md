@@ -6,41 +6,37 @@ AI-powered career counseling platform built with Google ADK.
 
 ```
 ├── backend/           # FastAPI backend
-│   ├── agents/       # ADK Agents (Behavior, Interest, Career, College)
 │   ├── db/           # Database models and connection
 │   ├── routers/      # API endpoints
 │   └── main.py       # FastAPI app
 │
-├── frontend/         # Next.js frontend
-│   ├── app/         # App router pages
-│   │   ├── onboarding/   # User registration
-│   │   ├── assessment/  # Behavioral assessment
-│   │   ├── analysis/    # Personality results
-│   │   ├── roadmap/     # Career roadmap
-│   │   └── colleges/    # College recommendations
-│   └── lib/         # API utilities
+├── frontend/         # Vite + React frontend
+│   ├── src/
+│   │   ├── pages/        # Route pages
+│   │   ├── lib/          # API utilities
+│   │   ├── context/      # Session state
+│   │   └── components/   # Shared UI
 │
-└── README.md
+├── eamcet_agent/     # Google ADK Agents
+│   ├── agents/       # Agent logic
+│   └── tools/        # Tools for college search, etc.
+│
+└── docs/             # Detailed Documentation
 ```
 
-## Setup
+## Quick Start
 
-### Backend
-```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
+See [QUICKSTART.md](QUICKSTART.md) for setup instructions.
 
-### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
+## Documentation
+
+- [ADK Integration Flow](docs/ADK_FLOW.md) - How the AI agents work
+- [Frontend Integration Guide](docs/FRONTEND_INTEGRATION_GUIDE.md) - Connecting React to ADK
+- [Integration Complete](docs/INTEGRATION_COMPLETE.md) - Summary of changes
+- [Codespaces Setup](docs/CODESPACES_SETUP.md) - Setting up the dev environment
+- [System Analysis Report](docs/SYSTEM_ANALYSIS_REPORT.md) - Analysis of the system architecture
 
 ## Tech Stack
 - **Backend**: FastAPI, PostgreSQL, Google ADK
-- **Frontend**: Next.js 14, React, Tailwind CSS
+- **Frontend**: Vite, React 18, Tailwind CSS
+- **AI**: Google Gemini (via ADK)

@@ -2,10 +2,10 @@
 User Router - Onboarding and profile management
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 from db.connection import get_db
 from db.models import User, UserStatus
@@ -27,6 +27,7 @@ class UserOnboard(BaseModel):
     budget: Optional[int] = None
     preferred_cities: Optional[List[str]] = None
     interests: Optional[List[str]] = None
+    generate_roadmap: Optional[bool] = True  # Auto-generate roadmap after onboarding
 
 
 class UserResponse(BaseModel):
@@ -52,10 +53,18 @@ class UserUpdate(BaseModel):
     interests: Optional[List[str]] = None
 
 
-@router.post("/onboard", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(user_data: UserOnboard, db: Session = Depends(get_db)):
-    """Create a new user with onboarding data"""
+@router.post("/onboard", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
+async def create_user(
+    user_data: UserOnboard,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    """
+    Create a new user with onboarding data.
     
+    If generate_roadmap is True, triggers ADK roadmap generation in background.
+    """
+
     # Check if user already exists
     existing = db.query(User).filter(User.email == user_data.email).first()
     if existing:
@@ -63,7 +72,7 @@ async def create_user(user_data: UserOnboard, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email already exists"
         )
-    
+
     # Create new user
     user = User(
         name=user_data.name,
@@ -79,12 +88,52 @@ async def create_user(user_data: UserOnboard, db: Session = Depends(get_db)):
         interests=user_data.interests,
         status=UserStatus.ONBOARDED
     )
-    
+
     db.add(user)
     db.commit()
     db.refresh(user)
     
-    return user
+    # Optionally trigger roadmap generation in background
+    roadmap_task_id = None
+    if user_data.generate_roadmap:
+        # Schedule roadmap generation
+        from services.adk_agent_service import adk_service
+        user_profile = {
+            "name": user.name,
+            "entrance_exam": user.entrance_exam,
+            "entrance_rank": user.entrance_rank,
+            "tenth_marks": user.tenth_marks,
+            "twelfth_marks": user.twelfth_marks,
+            "interests": user.interests or [],
+            "preferred_cities": user.preferred_cities or [],
+            "budget": user.budget,
+            "location": user.location
+        }
+        
+        async def generate_roadmap_task():
+            try:
+                await adk_service.generate_career_roadmap(str(user.id), user_profile)
+                print(f"✅ Roadmap generated for user {user.id}")
+            except Exception as e:
+                print(f"❌ Roadmap generation failed for user {user.id}: {e}")
+        
+        background_tasks.add_task(generate_roadmap_task)
+        roadmap_task_id = str(user.id)
+
+    return {
+        "status": "success",
+        "user": UserResponse(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            status=user.status
+        ),
+        "roadmap_generation": {
+            "scheduled": user_data.generate_roadmap,
+            "message": "Roadmap generation started in background" if user_data.generate_roadmap else "Set generate_roadmap=true to auto-generate",
+            "check_status_endpoint": f"/api/adk/my-roadmap/{user.id}"
+        }
+    }
 
 
 @router.get("/{user_id}", response_model=UserResponse)

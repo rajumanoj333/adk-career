@@ -36,7 +36,6 @@ ASSESSMENT_QUESTIONS = [
 
 
 class AssessmentAnswer(BaseModel):
-    user_id: int
     question_id: int
     answer: str  # agree, neutral, disagree
 
@@ -96,13 +95,13 @@ async def submit_batch(batch: AssessmentAnswerBatch, db: Session = Depends(get_d
     user = db.query(User).filter(User.id == batch.user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     saved = []
     for answer in batch.answers:
         question = next((q for q in ASSESSMENT_QUESTIONS if q["id"] == answer.question_id), None)
         if question:
             assessment = Assessment(
-                user_id=answer.user_id,
+                user_id=batch.user_id,
                 question_id=answer.question_id,
                 dimension=question["dimension"],
                 weight=question["weight"],
@@ -110,7 +109,7 @@ async def submit_batch(batch: AssessmentAnswerBatch, db: Session = Depends(get_d
             )
             db.add(assessment)
             saved.append(answer.question_id)
-    
+
     db.commit()
     return {"status": "saved", "count": len(saved)}
 
